@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-blob-upload
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fastapi-blob-upload
+  template:
+    metadata:
+      name: sample-workload-identity
+      namespace: test-storage-account
+      labels:
+        app: fastapi-blob-upload
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: workload-sa
+      containers:
+        - name: fastapi-blob-upload
+          image: teststorageaccount.azurecr.io/fastapi-blob-upload:latest
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2G
+            limits:
+              cpu: 4000m
+              memory: 4G
+          ports:
+          - containerPort: 8000
+          env:
+            - name: AZURE_STORAGE_BLOB_URL
+              value: "https://test132.blob.core.windows.net"
+      imagePullSecrets:
+        - name: acr-auth
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fastapi-blob-upload
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: fastapi-blob-upload

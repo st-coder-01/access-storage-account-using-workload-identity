@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    azure.workload.identity/client-id: "aec5febf-04e6-4170-ac5a-8829f9611154"
+  labels:
+    azure.workload.identity/use: "true"
+  name: workload-sa
+  namespace: test-storage-account
